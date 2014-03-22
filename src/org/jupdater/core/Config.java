@@ -5,8 +5,6 @@ import com.typesafe.config.ConfigFactory;
 import java.io.File;
 
 public class Config {
-    //singleton
-    private static Config config;
     //config.conf
     private com.typesafe.config.Config configFile;
     //data
@@ -15,17 +13,19 @@ public class Config {
     //disable public instancing
     private Config() {
        configFile = ConfigFactory.parseFile(new File("config.conf"));
-    };
+    }
 
     public Config initialize() {
         this.xmlVersionUrl = configFile.getString("connection.url.xmlVersion");
         return this;
     }
 
+    private static class ConfigHolder {
+        private static final Config instance = new Config().initialize();
+    }
+
     public static Config getInstance() {
-        if(config == null)
-            config = new Config().initialize();
-        return config;
+        return ConfigHolder.instance;
     }
 
     public String getXmlVersionUrl() {
