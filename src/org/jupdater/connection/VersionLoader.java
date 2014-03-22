@@ -14,7 +14,7 @@ public class VersionLoader {
 
         try {
             Config.getInstance().setVersionData(configVersion.getDouble("version.version"));
-            Config.getInstance().setVersionPath(configVersion.getString("version.path"));
+            Config.getInstance().setVersionPath(Config.getInstance().getVerionUrl()+configVersion.getString("version.path"));
         } catch(Exception e) {
             System.out.println("Impossible to read last version data, please contact administrator." +
                     "\n ("+e.getMessage()+")");
