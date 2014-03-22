@@ -8,7 +8,9 @@ public class Config {
     //config.conf
     private com.typesafe.config.Config configFile;
     //data
-    private String xmlVersionUrl;
+    private String verionUrl;
+    private double versionData;
+    private String versionPath;
 
     //disable public instancing
     private Config() {
@@ -16,7 +18,7 @@ public class Config {
     }
 
     public Config initialize() {
-        this.xmlVersionUrl = configFile.getString("connection.url.xmlVersion");
+        this.verionUrl = configFile.getString("connection.url.version");
         return this;
     }
 
@@ -28,7 +30,23 @@ public class Config {
         return ConfigHolder.instance;
     }
 
-    public String getXmlVersionUrl() {
-        return this.xmlVersionUrl;
+    public String getVerionUrl() {
+        return this.verionUrl;
+    }
+
+    public String getVersionPath() {
+        return versionPath;
+    }
+
+    public void setVersionPath(String versionPath) {
+        this.versionPath = versionPath;
+    }
+
+    public double getVersionData() {
+        return versionData;
+    }
+
+    public void setVersionData(double versionData) {
+        this.versionData = versionData;
     }
 }
