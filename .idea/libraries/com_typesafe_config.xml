@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="com.typesafe.config">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../ancestra-evolutive/bin/Ancestra Evolutive/libs/com.typesafe.config.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
