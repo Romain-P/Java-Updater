@@ -2,6 +2,7 @@ package org.jupdater.connection;
 
 
 import com.typesafe.config.ConfigFactory;
+import org.apache.commons.io.IOUtils;
 import org.jupdater.core.Config;
 
 import java.io.*;
@@ -26,18 +27,15 @@ public class VersionLoader {
         File file = null;
         try {
             URL fileUrl = new URL(org.jupdater.core.Config.getInstance().getVerionUrl());
-            InputStream fileIn = fileUrl.openStream();
+            InputStream input = fileUrl.openStream();
 
             file = File.createTempFile("version",".conf" );
-            BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(file));
+            BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(file));
 
-            int data;
-            while ((data = fileIn.read()) != -1)
-                fileOut.write(data);
+            IOUtils.copy(input, output);
 
-            fileOut.flush();
-            fileOut.close();
-            fileIn.close();
+            output.close();
+            input.close();
         } catch (Exception e) {
             System.out.println("Impossible to load last version data, please check your internet connection." +
                     "\n ("+e.getMessage()+")");
