@@ -10,13 +10,12 @@ Host your files on the server, and the app load version key/path, and download/u
 
 ####Exemple:
 
-Your config path: http://updater.com
+ * Your config path: http://updater.com
+ * Your releases folder: releases
+ * Current release: 0.1
 
-Your releases folder: releases
-Current release: 0.1
-
-* So, the config must be like that: http://updater.com/config.conf
-* And the current release must be like that: http://updater.com/releases/0.1.zip
+ * So, the config must be like that: http://updater.com/config.conf
+ * And the current release must be like that: http://updater.com/releases/0.1.zip
 
 Then, the client will download 0.1.zip and will unzip to update or create files.
 
