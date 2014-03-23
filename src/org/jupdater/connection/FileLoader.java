@@ -1,88 +1,80 @@
 package org.jupdater.connection;
 
-import org.apache.commons.io.IOUtils;
-import org.jupdater.core.Config;
-
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Enumeration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import org.jupdater.core.Config;
 
 public class FileLoader {
-    //path, file
-    private Map<String, File> files = new HashMap<>();
+    //will be util
     private ExecutorService threadWorker = Executors.newSingleThreadExecutor();
 
     public void launchUpdate() {
         System.out.println("You will be updated to the version "+Config.getInstance().getVersionData());
 
         threadWorker.execute(() -> {
-            loadDirectoryFiles(Config.getInstance().getVerionUrl()+"//"+Config.getInstance().getVersionData());
-
-            for(Map.Entry<String, File> mFile: files.entrySet()) {
-                File file = new File(mFile.getKey());
-                try {
-                    File folders = new File(file.getParent());
-                    if(!folders.exists()) {
-                        folders.mkdirs();
-                    }
-                    if(!file.isFile() || !file.exists()) {
-                        file.createNewFile();
-                        file.setLastModified(mFile.getValue().lastModified());
-                    }
-
-                    updateFile(file, mFile.getValue());
-                } catch(Exception e) {
-                    System.out.println("An error was found.. error with the file ("+file.getName()+"): "+e.getMessage());
-                }
-            }
-
-            System.out.println("Folder updated to version "+Config.getInstance().getVersionData()+" with success !");
-            threadWorker.shutdown();
-            System.exit(0);
-        });
-    }
-
-    private void updateFile(File file, File futureFile) {
-        if (file.length() != futureFile.length()
-                || file.lastModified() < futureFile.lastModified()) {
-
-            if(file.length() != 0) {
-                while(!file.delete()) {
-                    try {
-                        Thread.sleep(50);
-                    } catch(Exception e) {}
-                }
-            }
-
             try {
-                InputStream input = new FileInputStream(futureFile);
-                OutputStream output = new FileOutputStream(file);
+                byte[] buffer = new byte[512*1024];
+                URLConnection connection = new URL(Config.getInstance().getVersionPath()).openConnection();
 
-                if(!file.exists())
-                    file.createNewFile();
+                BufferedInputStream input = new BufferedInputStream(connection.getInputStream());
+                File distantFile = File.createTempFile("zips", "zip");
+                BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(distantFile));
 
-                IOUtils.copy(input, output);
+                System.out.println("Loading "+Config.getInstance().getVersionPath());
+                int bytesRead;
+                while ((bytesRead = input.read(buffer)) != -1)
+                  output.write(buffer, 0, bytesRead);
 
                 input.close();
                 output.close();
+
+                System.out.println("Extract in progress..");
+
+                ZipFile zipFile = new ZipFile(distantFile);
+                Enumeration<?> list = zipFile.entries();
+
+                while(list.hasMoreElements()) {
+                    ZipEntry entry = (ZipEntry)list.nextElement();
+                    File futureFile = new File(entry.getName());
+
+                    if(futureFile.getParentFile() != null)
+                        futureFile.getParentFile().mkdirs();
+
+                    if(entry.isDirectory())
+                        continue;
+                    else if (!futureFile.exists() || entry.getSize() != futureFile.length()) {
+                        System.out.println("Extracting " + futureFile);
+
+                        input = new BufferedInputStream(zipFile.getInputStream(entry));
+                        output = new BufferedOutputStream(new FileOutputStream(futureFile), 512*1024);
+
+                        int count;
+                        while ((count = input.read(buffer, 0, 512*1024)) != -1)
+                            output.write(buffer, 0, count);
+
+                        output.flush();
+                        output.close();
+                        input.close();
+
+                        futureFile.setLastModified(entry.getTime());
+                    }
+                }
+                zipFile.close();
             } catch(Exception e) {
-                System.out.println("An error was found.. error with the file (" + file.getName() + "): " + e.getMessage());
+                System.out.println("An error was found, the program will stop :" + e.getMessage());
             }
-        }
-    }
-
-    private void loadDirectoryFiles(String directoryPath){
-        File[] files;
-        File directoryToScan = new File(directoryPath);
-        files = directoryToScan.listFiles();
-
-        for(File file: files) {
-            if(file.isDirectory())
-                loadDirectoryFiles(file.getPath());
-            else
-                this.files.put(file.getPath(), file);
-        }
+            System.out.println("Folder updated to version "+Config.getInstance().getVersionData()+" with success !");
+            threadWorker.shutdown();
+        });
     }
 }

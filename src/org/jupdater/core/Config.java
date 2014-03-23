@@ -9,7 +9,7 @@ public class Config {
     private com.typesafe.config.Config configFile;
     //data
     private String verionUrl;
-    private double versionData;
+    private String versionData;
     private String versionPath;
     private String requiredFile;
 
@@ -44,11 +44,11 @@ public class Config {
         this.versionPath = versionPath;
     }
 
-    public double getVersionData() {
+    public String getVersionData() {
         return versionData;
     }
 
-    public void setVersionData(double versionData) {
+    public void setVersionData(String versionData) {
         this.versionData = versionData;
     }
 

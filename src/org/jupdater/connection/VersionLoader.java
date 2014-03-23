@@ -14,8 +14,10 @@ public class VersionLoader {
         com.typesafe.config.Config configVersion =  ConfigFactory.parseFile(getConfigFile());
 
         try {
-            Config.getInstance().setVersionData(configVersion.getDouble("version.version"));
-            Config.getInstance().setVersionPath(Config.getInstance().getVerionUrl()+configVersion.getString("version.path"));
+            Config.getInstance().setVersionData(configVersion.getString("version.version"));
+            Config.getInstance().setVersionPath(Config.getInstance().getVerionUrl() + "/"
+            		+ configVersion.getString("version.path") + "/"
+            		+ configVersion.getString("version.version")+".zip");
         } catch(Exception e) {
             System.out.println("Impossible to read last version data, please contact administrator." +
                     "\n ("+e.getMessage()+")");
@@ -26,7 +28,7 @@ public class VersionLoader {
     private static File getConfigFile() {
         File file = null;
         try {
-            URL fileUrl = new URL(org.jupdater.core.Config.getInstance().getVerionUrl());
+            URL fileUrl = new URL(org.jupdater.core.Config.getInstance().getVerionUrl()+"/config.conf");
             InputStream input = fileUrl.openStream();
 
             file = File.createTempFile("version",".conf" );
