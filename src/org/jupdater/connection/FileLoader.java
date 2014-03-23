@@ -23,24 +23,7 @@ public class FileLoader {
 
         threadWorker.execute(() -> {
             try {
-                byte[] buffer = new byte[512*1024];
-                URLConnection connection = new URL(Config.getInstance().getVersionPath()).openConnection();
-
-                BufferedInputStream input = new BufferedInputStream(connection.getInputStream());
-                File distantFile = File.createTempFile("zips", "zip");
-                BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(distantFile));
-
-                System.out.println("Loading "+Config.getInstance().getVersionPath());
-                int bytesRead;
-                while ((bytesRead = input.read(buffer)) != -1)
-                  output.write(buffer, 0, bytesRead);
-
-                input.close();
-                output.close();
-
-                System.out.println("Extract in progress..");
-
-                ZipFile zipFile = new ZipFile(distantFile);
+                ZipFile zipFile = this.loadDistantRelease();
                 Enumeration<?> list = zipFile.entries();
 
                 while(list.hasMoreElements()) {
@@ -55,8 +38,8 @@ public class FileLoader {
                     else if (!futureFile.exists() || entry.getSize() != futureFile.length()) {
                         System.out.println("Extracting " + futureFile);
 
-                        input = new BufferedInputStream(zipFile.getInputStream(entry));
-                        output = new BufferedOutputStream(new FileOutputStream(futureFile), 512*1024);
+                        BufferedInputStream input = new BufferedInputStream(zipFile.getInputStream(entry));
+                        BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(futureFile), 512*1024);
 
                         int count;
                         while ((count = input.read(buffer, 0, 512*1024)) != -1)
@@ -76,5 +59,33 @@ public class FileLoader {
             System.out.println("Folder updated to version "+Config.getInstance().getVersionData()+" with success !");
             threadWorker.shutdown();
         });
+    }
+
+    private ZipFile loadDistantRelease() {
+        try {
+            byte[] buffer = new byte[512*1024];
+            URLConnection connection = new URL(Config.getInstance().getVersionPath()).openConnection();
+
+            BufferedInputStream input = new BufferedInputStream(connection.getInputStream());
+            File distantFile = File.createTempFile("zips", "zip");
+            BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(distantFile));
+
+            System.out.println("Loading "+Config.getInstance().getVersionPath());
+            int bytesRead;
+            while ((bytesRead = input.read(buffer)) != -1)
+                output.write(buffer, 0, bytesRead);
+
+            input.close();
+            output.close();
+
+            System.out.println("Extract in progress..");
+
+            return new ZipFile(distantFile);
+        } catch (Exception e) {
+            System.out.println("Please check your internet connection, failed to load  " +
+                    Config.getInstance().getVersionPath() + " : " + e.getMessage());
+            System.exit(1);
+        }
+        return null;
     }
 }
