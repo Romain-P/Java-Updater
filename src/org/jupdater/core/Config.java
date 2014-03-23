@@ -11,6 +11,7 @@ public class Config {
     private String verionUrl;
     private double versionData;
     private String versionPath;
+    private String requiredFile;
 
     //disable public instancing
     private Config() {
@@ -19,6 +20,7 @@ public class Config {
 
     public Config initialize() {
         this.verionUrl = configFile.getString("connection.url.version");
+        this.requiredFile = configFile.getString("connection.files.required");
         return this;
     }
 
