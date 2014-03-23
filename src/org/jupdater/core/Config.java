@@ -51,4 +51,8 @@ public class Config {
     public void setVersionData(double versionData) {
         this.versionData = versionData;
     }
+
+    public String getRequiredFile() {
+        return this.requiredFile;
+    }
 }
