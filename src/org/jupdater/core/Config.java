@@ -12,6 +12,7 @@ public class Config {
     private String versionData;
     private String versionPath;
     private String requiredFile;
+    private String requiredReleases;
 
     //disable public instancing
     private Config() {
@@ -19,8 +20,7 @@ public class Config {
     }
 
     public Config initialize() {
-        this.verionUrl = configFile.getString("connection.url.version");
-        this.requiredFile = configFile.getString("connection.files.required");
+        this.verionUrl = configFile.getString("connection.url.config");
         return this;
     }
 
@@ -54,5 +54,17 @@ public class Config {
 
     public String getRequiredFile() {
         return this.requiredFile;
+    }
+
+    public void setRequiredFile(String requiredFile) {
+        this.requiredFile = requiredFile;
+    }
+
+    public String getRequiredReleases() {
+        return requiredReleases;
+    }
+
+    public void setRequiredReleases(String requiredReleases) {
+        this.requiredReleases = requiredReleases;
     }
 }

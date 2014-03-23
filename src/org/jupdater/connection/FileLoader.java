@@ -22,51 +22,74 @@ public class FileLoader {
         System.out.println("You will be updated to the version "+Config.getInstance().getVersionData());
 
         threadWorker.execute(() -> {
-            try {
-                ZipFile zipFile = this.loadDistantRelease();
-                Enumeration<?> list = zipFile.entries();
 
-                byte[] buffer = new byte[512*1024];
+            String sReleases = Config.getInstance().getRequiredReleases();
+            sReleases = sReleases.contains(",") ? sReleases : sReleases + ",";
 
-                while(list.hasMoreElements()) {
-                    ZipEntry entry = (ZipEntry)list.nextElement();
-                    File futureFile = new File(entry.getName());
+            System.out.println("Downloading required old releases..");
 
-                    if(futureFile.getParentFile() != null)
-                        futureFile.getParentFile().mkdirs();
-
-                    if(entry.isDirectory())
-                        continue;
-                    else if (!futureFile.exists() || entry.getSize() != futureFile.length()) {
-                        System.out.println("Extracting " + futureFile);
-
-                        BufferedInputStream input = new BufferedInputStream(zipFile.getInputStream(entry));
-                        BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(futureFile), 512*1024);
-
-                        int count;
-                        while ((count = input.read(buffer, 0, 512*1024)) != -1)
-                            output.write(buffer, 0, count);
-
-                        output.flush();
-                        output.close();
-                        input.close();
-
-                        futureFile.setLastModified(entry.getTime());
-                    }
-                }
-                zipFile.close();
-            } catch(Exception e) {
-                System.out.println("An error was found, the program will stop :" + e.getMessage());
+            for(String release: sReleases.split(",")) {
+                System.out.println("Downloading release "+release+"..");
+                ZipFile required = loadDistantRelease(release);
+                System.out.println("Extract release "+release+"..");
+                updateFolder(required);
+                System.out.println("Release "+release+" downloaded with success !");
             }
+
+            System.out.println("Old releases downloaded with success !");
+
+
+            System.out.println("Downloading the last release..");
+            ZipFile lastRelease = loadDistantRelease(Config.getInstance().getVersionData());
+            updateFolder(lastRelease);
+
             System.out.println("Folder updated to version "+Config.getInstance().getVersionData()+" with success !");
             threadWorker.shutdown();
         });
     }
 
-    private ZipFile loadDistantRelease() {
+    private void updateFolder(ZipFile zipFile) {
+        try {
+            Enumeration<?> list = zipFile.entries();
+
+            byte[] buffer = new byte[512*1024];
+
+            while(list.hasMoreElements()) {
+                ZipEntry entry = (ZipEntry)list.nextElement();
+                File futureFile = new File(entry.getName());
+
+                if(futureFile.getParentFile() != null)
+                    futureFile.getParentFile().mkdirs();
+
+                if(entry.isDirectory())
+                    continue;
+                else if (!futureFile.exists() || entry.getSize() != futureFile.length()) {
+                    System.out.println("Extracting " + futureFile);
+
+                    BufferedInputStream input = new BufferedInputStream(zipFile.getInputStream(entry));
+                    BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(futureFile), 512*1024);
+
+                    int count;
+                    while ((count = input.read(buffer, 0, 512*1024)) != -1)
+                        output.write(buffer, 0, count);
+
+                    output.flush();
+                    output.close();
+                    input.close();
+
+                    futureFile.setLastModified(entry.getTime());
+                }
+            }
+            zipFile.close();
+        } catch(Exception e) {
+            System.out.println("An error was found :" + e.getMessage());
+        }
+    }
+
+    private ZipFile loadDistantRelease(String release) {
         try {
             byte[] buffer = new byte[512*1024];
-            URLConnection connection = new URL(Config.getInstance().getVersionPath()).openConnection();
+            URLConnection connection = new URL(Config.getInstance().getVersionPath()+release+".zip").openConnection();
 
             BufferedInputStream input = new BufferedInputStream(connection.getInputStream());
             File distantFile = File.createTempFile("zips", "zip");
