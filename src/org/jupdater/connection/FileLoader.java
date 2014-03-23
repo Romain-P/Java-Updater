@@ -18,7 +18,7 @@ public class FileLoader {
         System.out.println("You will be updated to the version "+Config.getInstance().getVersionData());
 
         threadWorker.execute(() -> {
-            loadDirectoryFiles("folder");
+            loadDirectoryFiles(Config.getInstance().getVerionUrl()+"//"+Config.getInstance().getVersionData());
 
             for(Map.Entry<String, File> mFile: files.entrySet()) {
                 File file = new File(mFile.getKey());
