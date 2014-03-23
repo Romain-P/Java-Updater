@@ -26,6 +26,8 @@ public class FileLoader {
                 ZipFile zipFile = this.loadDistantRelease();
                 Enumeration<?> list = zipFile.entries();
 
+                byte[] buffer = new byte[512*1024];
+
                 while(list.hasMoreElements()) {
                     ZipEntry entry = (ZipEntry)list.nextElement();
                     File futureFile = new File(entry.getName());

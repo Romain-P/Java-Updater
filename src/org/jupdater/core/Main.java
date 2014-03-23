@@ -1,9 +1,9 @@
 package org.jupdater.core;
 
+import java.io.File;
+
 import org.jupdater.connection.FileLoader;
 import org.jupdater.connection.VersionLoader;
-
-import java.io.File;
 
 public class Main {
     /**
@@ -16,7 +16,6 @@ public class Main {
         File requiredFile = new File(Config.getInstance().getRequiredFile());
         if(!requiredFile.exists()) {
             System.out.println("You must put the updater into the good folder (which contains "+requiredFile.getPath()+")");
-            System.exit(1);
         } else {
             FileLoader fileLoader = new FileLoader();
             fileLoader.launchUpdate();
