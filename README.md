@@ -6,18 +6,47 @@ Host your files on the server, and the app load version key/path, and download/u
 
 # How to configure and use ?
 
-1: open the config.conf and write absolute path of the ftp's config.conf (see folder ftp) and write the version of your release.
+Configure client and ftp configs. (releases must be at .zip extension)
 
 ####Exemple:
 
- * Your config path: http://updater.com
- * Your releases folder: releases
- * Current release: 0.1
+ * Client config.conf (it's where is the updater)
 
- * So, the config must be like that: http://updater.com/config.conf
- * And the current release must be like that: http://updater.com/releases/0.1.zip
 
-Then, the client will download 0.1.zip and will unzip to update or create files.
+    connection {
+        url {
+            config = "http://updater.com/updater"
+        }
+    }
+
+Here, the program will find the distant config.conf at folder updater of your ftp (in this exemple)
+
+
+ * Your distant config.conf (on your ftp server):
+
+
+    release {
+        folder = releases
+
+        required_lasts = 0.1,0.2
+        current = 0.3
+
+
+        files {
+            required = "dofus.exe"
+        }
+    }
+
+Then, the program will update/create files of directory witch contains updater, if it's necessary.
+
+
+ * folder is the folder which contains releases at .zip extension
+ * required_lasts contains necessary releases before the last release
+ * current is the last release
+ * files.required is the file which is util to know if the updater is in the good folder (imagine if the client must put himself the updater in the program folder)
+
+Last exemple, if you have understand, you can have a release here: http://updater.com/updater/releases/0.1.zip
+
 
 # Required file
 
