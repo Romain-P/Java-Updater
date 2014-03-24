@@ -16,7 +16,7 @@ public class Main {
      */
     public static void main(String[] args) {
         //defining default proxy
-        initializeDefaultProxy();
+        //initializeDefaultProxy();
 
         //initialize host releases path
     	VersionLoader.initializeVersion();
