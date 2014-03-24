@@ -49,12 +49,6 @@ Then, the program will update/create files of directory witch contains updater, 
 
 Last exemple, if you have understand, you can have a release here: http://updater.com/updater/releases/0.1.zip
 
-
-# Required file
-
- * In the client config.conf, you must specify what program is obligatory.
- * It's simple to know if the updater is in the good folder.
-
 # Security Exception
 
  * 1) Create your jar file like try2.jar containing some mainifest file-- My1.mf as like always.So, the absolute path of the jar file would be C:\try.jar.
