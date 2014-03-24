@@ -13,11 +13,13 @@ Configure client and ftp configs. (releases must be at .zip extension)
  * Client config.conf (it's where is the updater)
 
 
-    connection {
-        url {
-            config = "http://updater.com/updater"
+
+        connection {
+            url {
+                config = "http://updater.com/updater"
+            }
         }
-    }
+
 
 Here, the program will find the distant config.conf at folder updater of your ftp (in this exemple)
 
@@ -25,17 +27,17 @@ Here, the program will find the distant config.conf at folder updater of your ft
  * Your distant config.conf (on your ftp server):
 
 
-    release {
-        folder = releases
+        release {
 
-        required_lasts = 0.1,0.2
-        current = 0.3
+            folder = releases
+            required_lasts = 0.1,0.2
+            current = 0.3
 
 
-        files {
-            required = "dofus.exe"
+            files {
+                required = "dofus.exe"
+            }
         }
-    }
 
 Then, the program will update/create files of directory witch contains updater, if it's necessary.
 
