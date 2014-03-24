@@ -14,7 +14,7 @@ public class Config {
     private String requiredFile;
     private String requiredReleases;
     //local data
-    private String installedReleases;
+    private String installedReleases = "";
 
     //disable public instancing
     private Config() {
