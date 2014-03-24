@@ -77,4 +77,8 @@ public class Config {
     public void setInstalledReleases(String installedReleases) {
         this.installedReleases = installedReleases;
     }
+
+    public void addInstalledRelease(String release) {
+        this.installedReleases += release+",";
+    }
 }

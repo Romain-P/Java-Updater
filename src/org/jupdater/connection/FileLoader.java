@@ -13,35 +13,50 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.jupdater.core.Config;
+import org.jupdater.data.DataManager;
 
 public class FileLoader {
     //will be util
     private ExecutorService threadWorker = Executors.newSingleThreadExecutor();
 
     public void launchUpdate() {
+
+        //check if folder has the last release
+        if(Config.getInstance().getInstalledReleases().contains(Config.getInstance().getVersionData())) {
+            System.out.println("Program already updated ! You don't need more updates.");
+            return;
+        }
+
+        //starting update
         System.out.println("You will be updated to the version "+Config.getInstance().getVersionData());
 
         threadWorker.execute(() -> {
-
             String sReleases = Config.getInstance().getRequiredReleases();
             sReleases = sReleases.contains(",") ? sReleases : sReleases + ",";
 
             System.out.println("Downloading required old releases..");
 
             for(String release: sReleases.split(",")) {
+                if(Config.getInstance().getInstalledReleases().contains(release))
+                    continue;
                 System.out.println("Downloading release "+release+"..");
                 ZipFile required = loadDistantRelease(release);
                 System.out.println("Extract release "+release+"..");
                 updateFolder(required);
                 System.out.println("Release "+release+" downloaded with success !");
+
+                //add to local data
+                DataManager.updateData(release);
             }
 
             System.out.println("Old releases downloaded with success !");
 
-
             System.out.println("Downloading the last release..");
             ZipFile lastRelease = loadDistantRelease(Config.getInstance().getVersionData());
             updateFolder(lastRelease);
+
+            //add to local data
+            DataManager.updateData(Config.getInstance().getVersionData());
 
             System.out.println("Folder updated to version "+Config.getInstance().getVersionData()+" with success !");
             threadWorker.shutdown();
