@@ -13,6 +13,8 @@ public class Config {
     private String versionPath;
     private String requiredFile;
     private String requiredReleases;
+    //local data
+    private String installedReleases;
 
     //disable public instancing
     private Config() {
@@ -66,5 +68,13 @@ public class Config {
 
     public void setRequiredReleases(String requiredReleases) {
         this.requiredReleases = requiredReleases;
+    }
+
+    public String getInstalledReleases() {
+        return installedReleases;
+    }
+
+    public void setInstalledReleases(String installedReleases) {
+        this.installedReleases = installedReleases;
     }
 }
