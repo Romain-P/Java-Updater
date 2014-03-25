@@ -107,7 +107,7 @@ public class FileLoader {
             URLConnection connection = new URL(Config.getInstance().getVersionPath()+release+".zip").openConnection();
 
             BufferedInputStream input = new BufferedInputStream(connection.getInputStream());
-            File distantFile = File.createTempFile("zips", "zip");
+            File distantFile = File.createTempFile("zips", ".zip");
             BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(distantFile));
 
             System.out.println("Loading "+Config.getInstance().getVersionPath());
