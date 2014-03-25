@@ -12,7 +12,7 @@ public class Config {
     private String versionData;
     private String versionPath;
     private String requiredFile;
-    private String requiredReleases;
+    private String requiredReleases = "";
     //local data
     private String installedReleases = "";
 
