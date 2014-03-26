@@ -15,10 +15,15 @@ public class VersionLoader {
 
         try {
             Config.getInstance().setVersionData(configVersion.getString("release.current"));
-            Config.getInstance().setVersionPath(Config.getInstance().getVerionUrl() + "/"
-            		+ configVersion.getString("release.folder") + "/");
+            Config.getInstance().setVersionPath(Config.getInstance().getVersionUrl() + "/"
+                    + configVersion.getString("release.folder") + "/");
             Config.getInstance().setRequiredFile(configVersion.getString("release.files.required"));
             Config.getInstance().setRequiredReleases(configVersion.getString("release.required_lasts"));
+            Config.getInstance().setLocalBackgroundUrl(configVersion.getString("design.url.local_background_url"));
+            Config.getInstance().setLocalCloseIconUrl(configVersion.getString("design.url.local_close_icon"));
+            Config.getInstance().setLocalCloseIconPosition(configVersion.getString("design.position.close_icon_position"));
+            Config.getInstance().setLocalOutputContainerPosition(configVersion.getString("design.position.output_text_position"));
+            Config.getInstance().setLaunchRequiredFileAfterUpdate(configVersion.getBoolean("release.files.launch_required_after_update"));
         } catch(Exception e) {
             System.out.println("Impossible to read last version data, please contact administrator." +
                     "\n ("+e.getMessage()+")");
@@ -29,7 +34,7 @@ public class VersionLoader {
     private static File getConfigFile() {
         File file = null;
         try {
-            URL fileUrl = new URL(org.jupdater.core.Config.getInstance().getVerionUrl()+"/config.conf");
+            URL fileUrl = new URL(org.jupdater.core.Config.getInstance().getVersionUrl()+"/config.conf");
             InputStream input = fileUrl.openStream();
 
             file = File.createTempFile("version",".conf" );

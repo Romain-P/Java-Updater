@@ -1,4 +1,6 @@
-package test.gui.org.jupdater.core;
+package org.jupdater.gui;
+
+import org.jupdater.core.Config;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,12 +15,10 @@ public class DefaultPanel extends JFrame {
     private DefaultPanel() {}
 
     public void initialize() {
-        this.setVisible(true);
-
         this.setResizable(false);
         this.setUndecorated(true);
 
-        //TODO: add in starting of computer the updater.exe, he must always be alive
+        //the program must work in hide_mod to check releases
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
         //active transparent
@@ -29,11 +29,10 @@ public class DefaultPanel extends JFrame {
         progressBar.setBounds(349, 290, 146, 14);
         this.add(progressBar);
 
-
-        ImageIcon image = new ImageIcon("you-background.png");
+        //add the background
+        ImageIcon image = new ImageIcon(Config.getInstance().getLocalBackgroundUrl());
 
         JLabel background = new JLabel(image);
-        background.setBackground(Color.WHITE);
         background.setBounds(0, 0, image.getIconWidth(), image.getIconHeight());
         this.add(background);
 

@@ -14,18 +14,22 @@ import java.util.zip.ZipFile;
 
 import org.jupdater.core.Config;
 import org.jupdater.data.DataManager;
+import org.jupdater.gui.DefaultPanel;
 
 public class FileLoader {
     //will be util
     private ExecutorService threadWorker = Executors.newSingleThreadExecutor();
 
     public void launchUpdate() {
+        //initialize gui design
+
 
         //check if folder has the last release
         if(Config.getInstance().getInstalledReleases().contains(Config.getInstance().getVersionData())) {
             System.out.println("Program already updated ! You don't need more updates.");
             return;
-        }
+        } else
+            DefaultPanel.getInstance().setVisible(true);
 
         //starting update
         System.out.println("You will be updated to the version "+Config.getInstance().getVersionData());

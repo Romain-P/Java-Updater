@@ -8,11 +8,17 @@ public class Config {
     //config.conf
     private com.typesafe.config.Config configFile;
     //data
-    private String verionUrl;
+    private String versionUrl;
     private String versionData;
     private String versionPath;
     private String requiredFile;
     private String requiredReleases = "";
+    private boolean launchRequiredFileAfterUpdate;
+    //design data
+    private String localBackgroundUrl;
+    private String localCloseIconUrl;
+    private String localCloseIconPosition; //x,y
+    private String localOutputContainerPosition; //x,y
     //local data
     private String installedReleases = "";
 
@@ -22,7 +28,7 @@ public class Config {
     }
 
     public Config initialize() {
-        this.verionUrl = configFile.getString("connection.url.config");
+        this.versionUrl = configFile.getString("connection.url.config");
         return this;
     }
 
@@ -34,8 +40,8 @@ public class Config {
         return ConfigHolder.instance;
     }
 
-    public String getVerionUrl() {
-        return this.verionUrl;
+    public String getVersionUrl() {
+        return this.versionUrl;
     }
 
     public String getVersionPath() {
@@ -80,5 +86,45 @@ public class Config {
 
     public void addInstalledRelease(String release) {
         this.installedReleases += release+",";
+    }
+
+    public String getLocalCloseIconUrl() {
+        return localCloseIconUrl;
+    }
+
+    public void setLocalCloseIconUrl(String localCloseIconUrl) {
+        this.localCloseIconUrl = localCloseIconUrl;
+    }
+
+    public String getLocalBackgroundUrl() {
+        return localBackgroundUrl;
+    }
+
+    public void setLocalBackgroundUrl(String localBackgroundUrl) {
+        this.localBackgroundUrl = localBackgroundUrl;
+    }
+
+    public String getLocalCloseIconPosition() {
+        return localCloseIconPosition;
+    }
+
+    public void setLocalCloseIconPosition(String localCloseIconPosition) {
+        this.localCloseIconPosition = localCloseIconPosition;
+    }
+
+    public String getLocalOutputContainerPosition() {
+        return localOutputContainerPosition;
+    }
+
+    public void setLocalOutputContainerPosition(String localOutputContainerPosition) {
+        this.localOutputContainerPosition = localOutputContainerPosition;
+    }
+
+    public boolean isLaunchRequiredFileAfterUpdate() {
+        return launchRequiredFileAfterUpdate;
+    }
+
+    public void setLaunchRequiredFileAfterUpdate(boolean launchRequiredFileAfterUpdate) {
+        this.launchRequiredFileAfterUpdate = launchRequiredFileAfterUpdate;
     }
 }
