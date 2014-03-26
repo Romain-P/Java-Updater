@@ -15,54 +15,58 @@ import java.util.zip.ZipFile;
 import org.jupdater.core.Config;
 import org.jupdater.data.DataManager;
 import org.jupdater.gui.DefaultPanel;
+import org.jupdater.gui.OutWriter;
 
 public class FileLoader {
     //will be util
     private ExecutorService threadWorker = Executors.newSingleThreadExecutor();
 
     public void launchUpdate() {
-        //initialize gui design
-
-
         //check if folder has the last release
         if(Config.getInstance().getInstalledReleases().contains(Config.getInstance().getVersionData())) {
-            System.out.println("Program already updated ! You don't need more updates.");
+            OutWriter.write("Program already updated !");
             return;
         } else
             DefaultPanel.getInstance().setVisible(true);
 
         //starting update
-        System.out.println("You will be updated to the version "+Config.getInstance().getVersionData());
+        OutWriter.write("You will be updated to " + Config.getInstance().getVersionData());
 
         threadWorker.execute(() -> {
             String sReleases = Config.getInstance().getRequiredReleases();
             sReleases = sReleases.contains(",") ? sReleases : sReleases + ",";
 
-            System.out.println("Downloading required old releases..");
+            OutWriter.write("Downloading required old releases..");
 
             for(String release: sReleases.split(",")) {
                 if(Config.getInstance().getInstalledReleases().contains(release))
                     continue;
-                System.out.println("Downloading release "+release+"..");
+                OutWriter.write("Downloading release " + release + "..");
                 ZipFile required = loadDistantRelease(release);
-                System.out.println("Extract release "+release+"..");
+                OutWriter.write("Extract release " + release + "..");
                 updateFolder(required);
-                System.out.println("Release "+release+" downloaded with success !");
+                OutWriter.write("Release " + release + " downloaded success !");
 
                 //add to local data
                 DataManager.updateData(release);
             }
 
-            System.out.println("Old releases downloaded with success !");
+            OutWriter.write("Old releases downloaded success !");
 
-            System.out.println("Downloading the last release..");
+            OutWriter.write("Downloading the last release..");
             ZipFile lastRelease = loadDistantRelease(Config.getInstance().getVersionData());
             updateFolder(lastRelease);
 
             //add to local data
             DataManager.updateData(Config.getInstance().getVersionData());
 
-            System.out.println("Folder updated to version "+Config.getInstance().getVersionData()+" with success !");
+            OutWriter.write("Updated to version " + Config.getInstance().getVersionData()+" success. Finished");
+            
+            //starting requiredFile
+            if(Config.getInstance().isLaunchRequiredFileAfterUpdate()) {
+
+            }
+
             threadWorker.shutdown();
         });
     }
@@ -83,7 +87,7 @@ public class FileLoader {
                 if(entry.isDirectory())
                     continue;
                 else if (!futureFile.exists() || entry.getSize() != futureFile.length()) {
-                    System.out.println("Extracting " + futureFile);
+                    OutWriter.write("Extracting " + futureFile);
 
                     BufferedInputStream input = new BufferedInputStream(zipFile.getInputStream(entry));
                     BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(futureFile), 512*1024);
@@ -101,7 +105,7 @@ public class FileLoader {
             }
             zipFile.close();
         } catch(Exception e) {
-            System.out.println("An error was found :" + e.getMessage());
+            OutWriter.writeError("An error was found :" + e.getMessage());
         }
     }
 
@@ -114,7 +118,7 @@ public class FileLoader {
             File distantFile = File.createTempFile("zips", ".zip");
             BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(distantFile));
 
-            System.out.println("Loading "+Config.getInstance().getVersionPath());
+            OutWriter.write("Loading " + Config.getInstance().getVersionPath());
             int bytesRead;
             while ((bytesRead = input.read(buffer)) != -1)
                 output.write(buffer, 0, bytesRead);
@@ -122,14 +126,18 @@ public class FileLoader {
             input.close();
             output.close();
 
-            System.out.println("Extract in progress..");
+            OutWriter.write("Extract in progress..");
 
             return new ZipFile(distantFile);
         } catch (Exception e) {
-            System.out.println("Please check your internet connection, failed to load  " +
+            OutWriter.writeError("Please check your internet connection, failed to load  " +
                     Config.getInstance().getVersionPath() + " : " + e.getMessage());
             System.exit(1);
         }
         return null;
+    }
+
+    private void launchRequiredFile() {
+
     }
 }

@@ -8,6 +8,7 @@ import com.sun.deploy.services.ServiceManager;
 import org.jupdater.connection.FileLoader;
 import org.jupdater.connection.VersionLoader;
 import org.jupdater.data.DataManager;
+import org.jupdater.gui.OutWriter;
 
 public class Main {
     /**
@@ -24,7 +25,7 @@ public class Main {
         //check required file
         File requiredFile = new File(Config.getInstance().getRequiredFile());
         if(!requiredFile.exists()) {
-            System.out.println("You must put the updater into the good folder (which contains "+requiredFile.getPath()+")");
+            OutWriter.writeError("You must put the updater into the good folder (which contains "+requiredFile.getPath()+")");
         } else {
             //load already installed releases
             DataManager.loadLocalData();

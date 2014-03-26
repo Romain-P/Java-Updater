@@ -13,6 +13,7 @@ public class DefaultPanel extends JFrame {
     private Point mousePointMover;
     //disable extern constructor
     private DefaultPanel() {}
+    private ContentPanel contentPanel;
 
     public void initialize() {
         this.setResizable(false);
@@ -38,8 +39,11 @@ public class DefaultPanel extends JFrame {
 
         //adapting window to background size
         this.setBounds(background.getBounds().x, background.getBounds().y, background.getBounds().width, background.getBounds().height);
+        //create window items
+        this.contentPanel = new ContentPanel(this);
+        this.contentPanel.initialize();
 
-
+        //active window moving
         this.activeMoving();
     }
 
@@ -52,24 +56,21 @@ public class DefaultPanel extends JFrame {
             public void mousePressed(MouseEvent e) {
                 mousePointMover = e.getPoint();
             }
-            public void mouseExited(MouseEvent e) {
-            }
-            public void mouseEntered(MouseEvent e) {
-            }
-            public void mouseClicked(MouseEvent e) {
-            }
+
+            public void mouseExited(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseClicked(MouseEvent e) {}
         });
 
         //motive the window to point location
         addMouseMotionListener(new MouseMotionListener(){
-            public void mouseMoved(MouseEvent e) {
-            }
-
             public void mouseDragged(MouseEvent e) {
                 Point currCoords = e.getLocationOnScreen();
                 setLocation(currCoords.x - mousePointMover.x, currCoords.y - mousePointMover.y);
                 // contentPane.setLocation(getLocation());
             }
+
+            public void mouseMoved(MouseEvent e) {}
         });
     }
 
@@ -79,5 +80,9 @@ public class DefaultPanel extends JFrame {
 
     public static DefaultPanel getInstance() {
         return DefaultPanelHolder.instance;
+    }
+
+    public ContentPanel getContentPanel() {
+        return this.contentPanel;
     }
 }

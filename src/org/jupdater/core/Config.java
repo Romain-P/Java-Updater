@@ -19,6 +19,7 @@ public class Config {
     private String localCloseIconUrl;
     private String localCloseIconPosition; //x,y
     private String localOutputContainerPosition; //x,y
+    private int localOutputTextSize;
     //local data
     private String installedReleases = "";
 
@@ -126,5 +127,13 @@ public class Config {
 
     public void setLaunchRequiredFileAfterUpdate(boolean launchRequiredFileAfterUpdate) {
         this.launchRequiredFileAfterUpdate = launchRequiredFileAfterUpdate;
+    }
+
+    public int getLocalOutputTextSize() {
+        return localOutputTextSize;
+    }
+
+    public void setLocalOutputTextSize(int localOutputTextSize) {
+        this.localOutputTextSize = localOutputTextSize;
     }
 }

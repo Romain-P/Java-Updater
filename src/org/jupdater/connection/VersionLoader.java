@@ -4,6 +4,7 @@ package org.jupdater.connection;
 import com.typesafe.config.ConfigFactory;
 import org.apache.commons.io.IOUtils;
 import org.jupdater.core.Config;
+import org.jupdater.gui.OutWriter;
 
 import java.io.*;
 import java.net.URL;
@@ -18,15 +19,16 @@ public class VersionLoader {
             Config.getInstance().setVersionPath(Config.getInstance().getVersionUrl() + "/"
                     + configVersion.getString("release.folder") + "/");
             Config.getInstance().setRequiredFile(configVersion.getString("release.files.required"));
+            Config.getInstance().setLaunchRequiredFileAfterUpdate(configVersion.getBoolean("release.files.launch_required_after_update"));
             Config.getInstance().setRequiredReleases(configVersion.getString("release.required_lasts"));
             Config.getInstance().setLocalBackgroundUrl(configVersion.getString("design.url.local_background_url"));
             Config.getInstance().setLocalCloseIconUrl(configVersion.getString("design.url.local_close_icon"));
             Config.getInstance().setLocalCloseIconPosition(configVersion.getString("design.position.close_icon_position"));
             Config.getInstance().setLocalOutputContainerPosition(configVersion.getString("design.position.output_text_position"));
-            Config.getInstance().setLaunchRequiredFileAfterUpdate(configVersion.getBoolean("release.files.launch_required_after_update"));
+            Config.getInstance().setLocalOutputTextSize(configVersion.getInt("design.size.output_text_size"));
         } catch(Exception e) {
-            System.out.println("Impossible to read last version data, please contact administrator." +
-                    "\n ("+e.getMessage()+")");
+            OutWriter.writeError("Impossible to read last version data, please contact administrator." +
+                   "\n (" + e.getMessage() + ")");
             System.exit(1);
         }
     }
@@ -45,7 +47,7 @@ public class VersionLoader {
             output.close();
             input.close();
         } catch (Exception e) {
-            System.out.println("Impossible to load last version data, please check your internet connection." +
+            OutWriter.writeError("Impossible to load last version data, please check your internet connection." +
                     "\n ("+e.getMessage()+")");
             System.exit(1);
         }

@@ -2,6 +2,7 @@ package org.jupdater.data;
 
 import org.apache.commons.io.IOUtils;
 import org.jupdater.core.Config;
+import org.jupdater.gui.OutWriter;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -17,7 +18,7 @@ public class DataManager {
                 String cmd = "reg add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run " +
                         "/v j-updater " +
                         "/t REG_SZ " +
-                        "/d \""+ Config.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "\"";
+                        "/d \""+ Config.class.getProtectionDomain().getCodeSource().getLocation().getPath().substring(1) + "\"";
                 try {
                     Runtime.getRuntime().exec(cmd);
                 } catch (Exception e1) {}
@@ -29,7 +30,7 @@ public class DataManager {
                 Config.getInstance().setInstalledReleases(data);
             }
         } catch (Exception e) {
-            System.out.println("Failed to read local data: "+e.getMessage());
+            OutWriter.writeError("Failed to read local data: "+e.getMessage());
         }
     }
 
@@ -48,7 +49,7 @@ public class DataManager {
 
             stream.close();
         } catch(Exception e) {
-            System.out.println("Failed to update local data: "+e.getMessage());
+            OutWriter.writeError("Failed to update local data: " + e.getMessage());
         }
     }
 }
