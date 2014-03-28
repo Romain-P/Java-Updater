@@ -35,43 +35,41 @@ public class FileLoader {
         
         //starting update
         OutWriter.write("You will be updated to " + Config.getInstance().getVersionData());
-        threadWorker.execute(new Runnable() {
-        	public void run() {
-	            String sReleases = Config.getInstance().getRequiredReleases();
-	            sReleases = sReleases.contains(",") ? sReleases : sReleases + ",";
-	
-	            OutWriter.write("Downloading required old releases..");
-	            
-	            for(String release: sReleases.split(",")) {
-	                if(Config.getInstance().getInstalledReleases().contains(release))
-	                    continue;
-	                OutWriter.write("Downloading release " + release + "..");
-	                ZipFile required = loadDistantRelease(release);
-	                OutWriter.write("Extract release " + release + "..");
-	                updateFolder(required);
-	                OutWriter.write("Release " + release + " downloaded success !");
-	
-	                //add to local data
-	                DataManager.updateData(release);
-	            }
-	
-	            OutWriter.write("Old releases downloaded success !");
-	
-	            OutWriter.write("Downloading the last release..");
-	            ZipFile lastRelease = loadDistantRelease(Config.getInstance().getVersionData());
-	            updateFolder(lastRelease);
-	
-	            //add to local data
-	            DataManager.updateData(Config.getInstance().getVersionData());
-	
-	            //starting requiredFile
-	            if(Config.getInstance().isLaunchRequiredFileAfterUpdate())
-	                launchRequiredFile();
-	            
-	            OutWriter.write("Update to version " + Config.getInstance().getVersionData()+" finished");
-	            DefaultPanel.getInstance().setVisible(false);
-	            launchCheckTimer();
-        	}
+        threadWorker.execute(() -> {
+            String sReleases = Config.getInstance().getRequiredReleases();
+            sReleases = sReleases.contains(",") ? sReleases : sReleases + ",";
+
+            OutWriter.write("Downloading required old releases..");
+
+            for(String release: sReleases.split(",")) {
+                if(Config.getInstance().getInstalledReleases().contains(release))
+                    continue;
+                OutWriter.write("Downloading release " + release + "..");
+                ZipFile required = loadDistantRelease(release);
+                OutWriter.write("Extract release " + release + "..");
+                updateFolder(required);
+                OutWriter.write("Release " + release + " downloaded success !");
+
+                //add to local data
+                DataManager.updateData(release);
+            }
+
+            OutWriter.write("Old releases downloaded success !");
+
+            OutWriter.write("Downloading the last release..");
+            ZipFile lastRelease = loadDistantRelease(Config.getInstance().getVersionData());
+            updateFolder(lastRelease);
+
+            //add to local data
+            DataManager.updateData(Config.getInstance().getVersionData());
+
+            //starting requiredFile
+            if(Config.getInstance().isLaunchRequiredFileAfterUpdate())
+                launchRequiredFile();
+
+            OutWriter.write("Update to version " + Config.getInstance().getVersionData()+" finished");
+            DefaultPanel.getInstance().setVisible(false);
+            launchCheckTimer();
         });
     }
 
