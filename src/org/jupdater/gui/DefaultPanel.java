@@ -9,27 +9,27 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 public class DefaultPanel extends JFrame {
-    //used to move window
+	//used to move window
     private Point mousePointMover;
     //disable extern constructor
     private DefaultPanel() {}
+    //components
     private ContentPanel contentPanel;
 
-    public void initialize() {
+    public DefaultPanel initialize() {
         this.setResizable(false);
         this.setUndecorated(true);
 
-        //the program must work in hide_mod to check releases
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        //the program must always work to check releases
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         //active transparent
         setBackground(new Color(0,0,0,0));
 
-        //progress bar
-        JProgressBar progressBar = new JProgressBar();
-        progressBar.setBounds(349, 290, 146, 14);
-        this.add(progressBar);
-
+        //create window items
+        this.contentPanel = new ContentPanel(this);
+        this.contentPanel.initialize();
+        
         //add the background
         ImageIcon image = new ImageIcon(Config.getInstance().getLocalBackgroundUrl());
 
@@ -39,12 +39,10 @@ public class DefaultPanel extends JFrame {
 
         //adapting window to background size
         this.setBounds(background.getBounds().x, background.getBounds().y, background.getBounds().width, background.getBounds().height);
-        //create window items
-        this.contentPanel = new ContentPanel(this);
-        this.contentPanel.initialize();
-
+        
         //active window moving
         this.activeMoving();
+        return this;
     }
 
     private void activeMoving() {
@@ -74,8 +72,8 @@ public class DefaultPanel extends JFrame {
         });
     }
 
-    private static class DefaultPanelHolder {
-        public static final DefaultPanel instance = new DefaultPanel();
+    static class DefaultPanelHolder {
+        public static final DefaultPanel instance = new DefaultPanel().initialize();
     }
 
     public static DefaultPanel getInstance() {

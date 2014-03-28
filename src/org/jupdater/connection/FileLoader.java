@@ -9,6 +9,9 @@ import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -18,56 +21,57 @@ import org.jupdater.gui.DefaultPanel;
 import org.jupdater.gui.OutWriter;
 
 public class FileLoader {
-    //will be util
+    //Threads
     private ExecutorService threadWorker = Executors.newSingleThreadExecutor();
-
+    private ScheduledExecutorService timeWorker = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> timerTask;
+    
     public void launchUpdate() {
         //check if folder has the last release
-        if(Config.getInstance().getInstalledReleases().contains(Config.getInstance().getVersionData())) {
-            OutWriter.write("Program already updated !");
+        if(!needUpdate(false))
             return;
-        } else
-            DefaultPanel.getInstance().setVisible(true);
-
+        else
+        	DefaultPanel.getInstance().setVisible(true);
+        
         //starting update
         OutWriter.write("You will be updated to " + Config.getInstance().getVersionData());
-
-        threadWorker.execute(() -> {
-            String sReleases = Config.getInstance().getRequiredReleases();
-            sReleases = sReleases.contains(",") ? sReleases : sReleases + ",";
-
-            OutWriter.write("Downloading required old releases..");
-
-            for(String release: sReleases.split(",")) {
-                if(Config.getInstance().getInstalledReleases().contains(release))
-                    continue;
-                OutWriter.write("Downloading release " + release + "..");
-                ZipFile required = loadDistantRelease(release);
-                OutWriter.write("Extract release " + release + "..");
-                updateFolder(required);
-                OutWriter.write("Release " + release + " downloaded success !");
-
-                //add to local data
-                DataManager.updateData(release);
-            }
-
-            OutWriter.write("Old releases downloaded success !");
-
-            OutWriter.write("Downloading the last release..");
-            ZipFile lastRelease = loadDistantRelease(Config.getInstance().getVersionData());
-            updateFolder(lastRelease);
-
-            //add to local data
-            DataManager.updateData(Config.getInstance().getVersionData());
-
-            OutWriter.write("Updated to version " + Config.getInstance().getVersionData()+" success. Finished");
-            
-            //starting requiredFile
-            if(Config.getInstance().isLaunchRequiredFileAfterUpdate()) {
-
-            }
-
-            threadWorker.shutdown();
+        threadWorker.execute(new Runnable() {
+        	public void run() {
+	            String sReleases = Config.getInstance().getRequiredReleases();
+	            sReleases = sReleases.contains(",") ? sReleases : sReleases + ",";
+	
+	            OutWriter.write("Downloading required old releases..");
+	            
+	            for(String release: sReleases.split(",")) {
+	                if(Config.getInstance().getInstalledReleases().contains(release))
+	                    continue;
+	                OutWriter.write("Downloading release " + release + "..");
+	                ZipFile required = loadDistantRelease(release);
+	                OutWriter.write("Extract release " + release + "..");
+	                updateFolder(required);
+	                OutWriter.write("Release " + release + " downloaded success !");
+	
+	                //add to local data
+	                DataManager.updateData(release);
+	            }
+	
+	            OutWriter.write("Old releases downloaded success !");
+	
+	            OutWriter.write("Downloading the last release..");
+	            ZipFile lastRelease = loadDistantRelease(Config.getInstance().getVersionData());
+	            updateFolder(lastRelease);
+	
+	            //add to local data
+	            DataManager.updateData(Config.getInstance().getVersionData());
+	
+	            //starting requiredFile
+	            if(Config.getInstance().isLaunchRequiredFileAfterUpdate())
+	                launchRequiredFile();
+	            
+	            OutWriter.write("Update to version " + Config.getInstance().getVersionData()+" finished");
+	            DefaultPanel.getInstance().setVisible(false);
+	            launchCheckTimer();
+        	}
         });
     }
 
@@ -118,7 +122,7 @@ public class FileLoader {
             File distantFile = File.createTempFile("zips", ".zip");
             BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(distantFile));
 
-            OutWriter.write("Loading " + Config.getInstance().getVersionPath());
+            OutWriter.write("Loading " + release +" package..");
             int bytesRead;
             while ((bytesRead = input.read(buffer)) != -1)
                 output.write(buffer, 0, bytesRead);
@@ -137,7 +141,36 @@ public class FileLoader {
         return null;
     }
 
-    private void launchRequiredFile() {
+    private boolean needUpdate(boolean launchProgram) {
+        if(Config.getInstance().getInstalledReleases().contains(Config.getInstance().getVersionData())) {
+            if(launchProgram && Config.getInstance().isLaunchRequiredFileAfterUpdate())
+                launchRequiredFile();
+            return false;
+        }
+        DefaultPanel.getInstance().setVisible(true);
+        return true;
+    }
 
+    private void launchRequiredFile() {
+        String program = Config.getInstance().getRequiredFile();
+        try {
+            Runtime.getRuntime().exec(Config.getInstance().getRequiredFile());
+        } catch(Exception e) {
+            OutWriter.writeError("Can't start "+program+": "+e.getMessage());
+        }
+    }
+    
+    private void launchCheckTimer() {
+    	if(timerTask != null)
+    		return;
+    	timerTask = this.timeWorker.scheduleWithFixedDelay(new Runnable() {
+    		public void run() {
+    			if(VersionLoader.newReleaseAvailable()) {
+    				//reload configuration
+    				VersionLoader.initializeVersion();
+    				launchUpdate();
+    			}
+    		}
+    	}, 1, 1, TimeUnit.MINUTES);
     }
 }

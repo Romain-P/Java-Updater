@@ -10,24 +10,30 @@ import java.io.*;
 import java.net.URL;
 
 public class VersionLoader {
+	private static long lastConfigModification;
 
     public static void initializeVersion() {
-        com.typesafe.config.Config configVersion =  ConfigFactory.parseFile(getConfigFile());
-
+    	File config = getConfigFile();
+        com.typesafe.config.Config configVersion =  ConfigFactory.parseFile(config);
+        
         try {
+        	//set last modification
+        	lastConfigModification = config.lastModified();
+        	
+        	//configure updater
             Config.getInstance().setVersionData(configVersion.getString("release.current"));
             Config.getInstance().setVersionPath(Config.getInstance().getVersionUrl() + "/"
                     + configVersion.getString("release.folder") + "/");
             Config.getInstance().setRequiredFile(configVersion.getString("release.files.required"));
             Config.getInstance().setLaunchRequiredFileAfterUpdate(configVersion.getBoolean("release.files.launch_required_after_update"));
             Config.getInstance().setRequiredReleases(configVersion.getString("release.required_lasts"));
-            Config.getInstance().setLocalBackgroundUrl(configVersion.getString("design.url.local_background_url"));
-            Config.getInstance().setLocalCloseIconUrl(configVersion.getString("design.url.local_close_icon"));
-            Config.getInstance().setLocalCloseIconPosition(configVersion.getString("design.position.close_icon_position"));
-            Config.getInstance().setLocalOutputContainerPosition(configVersion.getString("design.position.output_text_position"));
-            Config.getInstance().setLocalOutputTextSize(configVersion.getInt("design.size.output_text_size"));
+            Config.getInstance().setLocalBackgroundUrl(configVersion.getString("release.design.url.local_background_url"));
+            Config.getInstance().setLocalCloseIconUrl(configVersion.getString("release.design.url.local_close_icon"));
+            Config.getInstance().setLocalCloseIconPosition(configVersion.getString("release.design.position.close_icon_position"));
+            Config.getInstance().setLocalOutputContainerPosition(configVersion.getString("release.design.position.output_text_position"));
+            Config.getInstance().setLocalOutputTextSize(configVersion.getInt("release.design.size.output_text_size"));
         } catch(Exception e) {
-            OutWriter.writeError("Impossible to read last version data, please contact administrator." +
+            System.out.println("Impossible to read last version data, please contact administrator." +
                    "\n (" + e.getMessage() + ")");
             System.exit(1);
         }
@@ -36,7 +42,7 @@ public class VersionLoader {
     private static File getConfigFile() {
         File file = null;
         try {
-            URL fileUrl = new URL(org.jupdater.core.Config.getInstance().getVersionUrl()+"/config.conf");
+            URL fileUrl = new URL(Config.getInstance().getVersionUrl()+"/config.conf");
             InputStream input = fileUrl.openStream();
 
             file = File.createTempFile("version",".conf" );
@@ -53,5 +59,10 @@ public class VersionLoader {
         }
 
         return file;
+    }
+    
+    public static boolean newReleaseAvailable() {
+    	File newConfig = getConfigFile();
+    	return newConfig.lastModified() != lastConfigModification;
     }
 }
