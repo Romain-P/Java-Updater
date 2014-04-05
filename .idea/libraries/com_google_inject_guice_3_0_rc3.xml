@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="com.google.inject:guice:3.0-rc3" type="repository">
+    <properties maven-id="com.google.inject:guice:3.0-rc3" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/guice-3.0-rc3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/javax.inject-1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/aopalliance-1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/libs/guice-3.0-rc3-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/libs/guice-3.0-rc3-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

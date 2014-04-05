@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import com.google.inject.Inject;
 import org.jupdater.core.Config;
 import org.jupdater.data.DataManager;
 import org.jupdater.gui.DefaultPanel;
@@ -25,7 +26,10 @@ public class FileLoader {
     private ExecutorService threadWorker = Executors.newSingleThreadExecutor();
     private ScheduledExecutorService timeWorker = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> timerTask;
-    
+    @Inject Config config;
+    @Inject VersionLoader loader;
+    @Inject DataManager manager;
+
     public void launchUpdate() {
         //check if folder has the last release
         if(!needUpdate(false))
@@ -34,15 +38,15 @@ public class FileLoader {
         	DefaultPanel.getInstance().setVisible(true);
         
         //starting update
-        OutWriter.write("You will be updated to " + Config.getInstance().getVersionData());
+        OutWriter.write("You will be updated to " + config.getVersionData());
         threadWorker.execute(() -> {
-            String sReleases = Config.getInstance().getRequiredReleases();
+            String sReleases = config.getRequiredReleases();
             sReleases = sReleases.contains(",") ? sReleases : sReleases + ",";
 
             OutWriter.write("Downloading required old releases..");
 
             for(String release: sReleases.split(",")) {
-                if(Config.getInstance().getInstalledReleases().contains(release))
+                if(config.getInstalledReleases().contains(release))
                     continue;
                 OutWriter.write("Downloading release " + release + "..");
                 ZipFile required = loadDistantRelease(release);
@@ -51,23 +55,23 @@ public class FileLoader {
                 OutWriter.write("Release " + release + " downloaded success !");
 
                 //add to local data
-                DataManager.updateData(release);
+                manager.updateData(release);
             }
 
             OutWriter.write("Old releases downloaded success !");
 
             OutWriter.write("Downloading the last release..");
-            ZipFile lastRelease = loadDistantRelease(Config.getInstance().getVersionData());
+            ZipFile lastRelease = loadDistantRelease(config.getVersionData());
             updateFolder(lastRelease);
 
             //add to local data
-            DataManager.updateData(Config.getInstance().getVersionData());
+            manager.updateData(config.getVersionData());
 
             //starting requiredFile
-            if(Config.getInstance().isLaunchRequiredFileAfterUpdate())
+            if(config.isLaunchRequiredFileAfterUpdate())
                 launchRequiredFile();
 
-            OutWriter.write("Update to version " + Config.getInstance().getVersionData()+" finished");
+            OutWriter.write("Update to version " + config.getVersionData()+" finished");
             DefaultPanel.getInstance().setVisible(false);
             launchCheckTimer();
         });
@@ -114,7 +118,7 @@ public class FileLoader {
     private ZipFile loadDistantRelease(String release) {
         try {
             byte[] buffer = new byte[512*1024];
-            URLConnection connection = new URL(Config.getInstance().getVersionPath()+release+".zip").openConnection();
+            URLConnection connection = new URL(config.getVersionPath()+release+".zip").openConnection();
 
             BufferedInputStream input = new BufferedInputStream(connection.getInputStream());
             File distantFile = File.createTempFile("zips", ".zip");
@@ -133,15 +137,15 @@ public class FileLoader {
             return new ZipFile(distantFile);
         } catch (Exception e) {
             OutWriter.writeError("Please check your internet connection, failed to load  " +
-                    Config.getInstance().getVersionPath() + " : " + e.getMessage());
+                    config.getVersionPath() + " : " + e.getMessage());
             System.exit(1);
         }
         return null;
     }
 
     private boolean needUpdate(boolean launchProgram) {
-        if(Config.getInstance().getInstalledReleases().contains(Config.getInstance().getVersionData())) {
-            if(launchProgram && Config.getInstance().isLaunchRequiredFileAfterUpdate())
+        if(config.getInstalledReleases().contains(config.getVersionData())) {
+            if(launchProgram && config.isLaunchRequiredFileAfterUpdate())
                 launchRequiredFile();
             return false;
         }
@@ -150,9 +154,9 @@ public class FileLoader {
     }
 
     private void launchRequiredFile() {
-        String program = Config.getInstance().getRequiredFile();
+        String program = config.getRequiredFile();
         try {
-            Runtime.getRuntime().exec(Config.getInstance().getRequiredFile());
+            Runtime.getRuntime().exec(config.getRequiredFile());
         } catch(Exception e) {
             OutWriter.writeError("Can't start "+program+": "+e.getMessage());
         }
@@ -163,9 +167,9 @@ public class FileLoader {
     		return;
     	timerTask = this.timeWorker.scheduleWithFixedDelay(new Runnable() {
     		public void run() {
-    			if(VersionLoader.newReleaseAvailable()) {
+    			if(loader.newReleaseAvailable()) {
     				//reload configuration
-    				VersionLoader.initializeVersion();
+    				loader.initializeVersion();
     				launchUpdate();
     			}
     		}

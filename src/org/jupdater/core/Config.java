@@ -6,9 +6,9 @@ import java.io.File;
 
 public class Config {
     //config.conf
-    private com.typesafe.config.Config configFile;
+    private com.typesafe.config.Config configFile = ConfigFactory.parseFile(new File("config.conf"));
     //data
-    private String versionUrl;
+    private String versionUrl = configFile.getString("connection.url.config");
     private String versionData;
     private String versionPath;
     private String requiredFile;
@@ -22,24 +22,6 @@ public class Config {
     private int localOutputTextSize;
     //local data
     private String installedReleases = "";
-
-    //disable public instancing
-    private Config() {
-       configFile = ConfigFactory.parseFile(new File("config.conf"));
-    }
-
-    public Config initialize() {
-        this.versionUrl = configFile.getString("connection.url.config");
-        return this;
-    }
-
-    private static class ConfigHolder {
-        private static final Config instance = new Config().initialize();
-    }
-
-    public static Config getInstance() {
-        return ConfigHolder.instance;
-    }
 
     public String getVersionUrl() {
         return this.versionUrl;
