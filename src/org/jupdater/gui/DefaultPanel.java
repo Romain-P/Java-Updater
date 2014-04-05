@@ -2,6 +2,8 @@ package org.jupdater.gui;
 
 import org.jupdater.core.Config;
 
+import com.google.inject.Inject;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -9,16 +11,20 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 public class DefaultPanel extends JFrame {
+	private static final long serialVersionUID = 8253094830589266836L;
 	//used to move window
     private Point mousePointMover;
-    //disable extern constructor
-    private DefaultPanel() {}
     //components
-    private ContentPanel contentPanel;
-
+    @Inject ContentPanel contentPanel;
+    @Inject Config config;
+    
+    public DefaultPanel() {
+    	this.setUndecorated(true);
+    }
+    
     public DefaultPanel initialize() {
         this.setResizable(false);
-        this.setUndecorated(true);
+        //this.setUndecorated(true);
 
         //the program must always work to check releases
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -27,11 +33,10 @@ public class DefaultPanel extends JFrame {
         setBackground(new Color(0,0,0,0));
 
         //create window items
-        this.contentPanel = new ContentPanel(this);
         this.contentPanel.initialize();
         
         //add the background
-        ImageIcon image = new ImageIcon(Config.getInstance().getLocalBackgroundUrl());
+        ImageIcon image = new ImageIcon(config.getLocalBackgroundUrl());
 
         JLabel background = new JLabel(image);
         background.setBounds(0, 0, image.getIconWidth(), image.getIconHeight());
@@ -70,14 +75,6 @@ public class DefaultPanel extends JFrame {
 
             public void mouseMoved(MouseEvent e) {}
         });
-    }
-
-    static class DefaultPanelHolder {
-        public static final DefaultPanel instance = new DefaultPanel().initialize();
-    }
-
-    public static DefaultPanel getInstance() {
-        return DefaultPanelHolder.instance;
     }
 
     public ContentPanel getContentPanel() {

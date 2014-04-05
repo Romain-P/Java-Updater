@@ -26,54 +26,61 @@ public class FileLoader {
     private ExecutorService threadWorker = Executors.newSingleThreadExecutor();
     private ScheduledExecutorService timeWorker = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> timerTask;
+    //guice
     @Inject Config config;
     @Inject VersionLoader loader;
     @Inject DataManager manager;
+    @Inject DefaultPanel panel;
+    @Inject OutWriter writer;
 
     public void launchUpdate() {
         //check if folder has the last release
         if(!needUpdate(false))
             return;
-        else
-        	DefaultPanel.getInstance().setVisible(true);
+        else 
+        	panel.initialize().setVisible(true);
+        
         
         //starting update
-        OutWriter.write("You will be updated to " + config.getVersionData());
-        threadWorker.execute(() -> {
-            String sReleases = config.getRequiredReleases();
-            sReleases = sReleases.contains(",") ? sReleases : sReleases + ",";
-
-            OutWriter.write("Downloading required old releases..");
-
-            for(String release: sReleases.split(",")) {
-                if(config.getInstalledReleases().contains(release))
-                    continue;
-                OutWriter.write("Downloading release " + release + "..");
-                ZipFile required = loadDistantRelease(release);
-                OutWriter.write("Extract release " + release + "..");
-                updateFolder(required);
-                OutWriter.write("Release " + release + " downloaded success !");
-
-                //add to local data
-                manager.updateData(release);
-            }
-
-            OutWriter.write("Old releases downloaded success !");
-
-            OutWriter.write("Downloading the last release..");
-            ZipFile lastRelease = loadDistantRelease(config.getVersionData());
-            updateFolder(lastRelease);
-
-            //add to local data
-            manager.updateData(config.getVersionData());
-
-            //starting requiredFile
-            if(config.isLaunchRequiredFileAfterUpdate())
-                launchRequiredFile();
-
-            OutWriter.write("Update to version " + config.getVersionData()+" finished");
-            DefaultPanel.getInstance().setVisible(false);
-            launchCheckTimer();
+        writer.write("You will be updated to " + config.getVersionData());
+        threadWorker.execute(new Runnable() {
+        	@Override
+        	public void run() {
+	            String sReleases = config.getRequiredReleases();
+	            sReleases = sReleases.contains(",") ? sReleases : sReleases + ",";
+	
+	            writer.write("Downloading required old releases..");
+	
+	            for(String release: sReleases.split(",")) {
+	                if(config.getInstalledReleases().contains(release))
+	                    continue;
+	                writer.write("Downloading release " + release + "..");
+	                ZipFile required = loadDistantRelease(release);
+	                writer.write("Extract release " + release + "..");
+	                updateFolder(required);
+	                writer.write("Release " + release + " downloaded success !");
+	
+	                //add to local data
+	                manager.updateData(release);
+	            }
+	
+	            writer.write("Old releases downloaded success !");
+	
+	            writer.write("Downloading the last release..");
+	            ZipFile lastRelease = loadDistantRelease(config.getVersionData());
+	            updateFolder(lastRelease);
+	
+	            //add to local data
+	            manager.updateData(config.getVersionData());
+	
+	            //starting requiredFile
+	            if(config.isLaunchRequiredFileAfterUpdate())
+	                launchRequiredFile();
+	
+	            writer.write("Update to version " + config.getVersionData()+" finished");
+	            panel.setVisible(false);
+	            launchCheckTimer();
+        	}
         });
     }
 
@@ -93,7 +100,7 @@ public class FileLoader {
                 if(entry.isDirectory())
                     continue;
                 else if (!futureFile.exists() || entry.getSize() != futureFile.length()) {
-                    OutWriter.write("Extracting " + futureFile);
+                    writer.write("Extracting " + futureFile);
 
                     BufferedInputStream input = new BufferedInputStream(zipFile.getInputStream(entry));
                     BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(futureFile), 512*1024);
@@ -111,7 +118,7 @@ public class FileLoader {
             }
             zipFile.close();
         } catch(Exception e) {
-            OutWriter.writeError("An error was found :" + e.getMessage());
+            writer.writeError("An error was found :" + e.getMessage());
         }
     }
 
@@ -124,7 +131,7 @@ public class FileLoader {
             File distantFile = File.createTempFile("zips", ".zip");
             BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(distantFile));
 
-            OutWriter.write("Loading " + release +" package..");
+            writer.write("Loading " + release +" package..");
             int bytesRead;
             while ((bytesRead = input.read(buffer)) != -1)
                 output.write(buffer, 0, bytesRead);
@@ -132,11 +139,11 @@ public class FileLoader {
             input.close();
             output.close();
 
-            OutWriter.write("Extract in progress..");
+            writer.write("Extract in progress..");
 
             return new ZipFile(distantFile);
         } catch (Exception e) {
-            OutWriter.writeError("Please check your internet connection, failed to load  " +
+            writer.writeError("Please check your internet connection, failed to load  " +
                     config.getVersionPath() + " : " + e.getMessage());
             System.exit(1);
         }
@@ -149,7 +156,7 @@ public class FileLoader {
                 launchRequiredFile();
             return false;
         }
-        DefaultPanel.getInstance().setVisible(true);
+        panel.setVisible(true);
         return true;
     }
 
@@ -158,7 +165,7 @@ public class FileLoader {
         try {
             Runtime.getRuntime().exec(config.getRequiredFile());
         } catch(Exception e) {
-            OutWriter.writeError("Can't start "+program+": "+e.getMessage());
+            writer.writeError("Can't start "+program+": "+e.getMessage());
         }
     }
     

@@ -1,9 +1,9 @@
 package org.jupdater.connection;
 
 
+import com.google.inject.Inject;
 import com.typesafe.config.ConfigFactory;
 import org.apache.commons.io.IOUtils;
-import org.jupdater.core.Config;
 import org.jupdater.gui.OutWriter;
 
 import java.io.*;
@@ -11,14 +11,12 @@ import java.net.URL;
 
 public class VersionLoader {
 	private long lastConfigModification;
-    private org.jupdater.core.Config config;
-
-    public VersionLoader(org.jupdater.core.Config config) {
-        this.config = config;
-    }
+    //guice
+    @Inject org.jupdater.core.Config config;
+    @Inject OutWriter writer;
 
     public void initializeVersion() {
-    	File config = getConfigFile(this.config);
+    	File config = getConfigFile();
         com.typesafe.config.Config configVersion =  ConfigFactory.parseFile(config);
         
         try {
@@ -43,7 +41,7 @@ public class VersionLoader {
         }
     }
 
-    private File getConfigFile(org.jupdater.core.Config config) {
+    private File getConfigFile() {
         File file = null;
         try {
             URL fileUrl = new URL(config.getVersionUrl()+"/config.conf");
@@ -57,7 +55,7 @@ public class VersionLoader {
             output.close();
             input.close();
         } catch (Exception e) {
-            OutWriter.writeError("Impossible to load last version data, please check your internet connection." +
+            writer.writeError("Impossible to load last version data, please check your internet connection." +
                     "\n ("+e.getMessage()+")");
             System.exit(1);
         }
@@ -66,7 +64,7 @@ public class VersionLoader {
     }
     
     public boolean newReleaseAvailable() {
-    	File newConfig = getConfigFile(config);
+    	File newConfig = getConfigFile();
     	return newConfig.lastModified() != lastConfigModification;
     }
 }

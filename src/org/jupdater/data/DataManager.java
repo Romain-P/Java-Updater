@@ -8,8 +8,9 @@ import java.io.*;
 import java.nio.charset.Charset;
 
 public class DataManager {
-    @Inject private Config config;
-
+    @Inject Config config;
+    @Inject OutWriter writer;
+    
     public void loadLocalData() {
         try {
             File file = new File("data.dat");
@@ -32,7 +33,7 @@ public class DataManager {
                config.setInstalledReleases(data);
             }
         } catch (Exception e) {
-            OutWriter.writeError("Failed to read local data: "+e.getMessage());
+        	writer.writeError("Failed to read local data: "+e.getMessage());
         }
     }
 
@@ -51,7 +52,7 @@ public class DataManager {
 
             stream.close();
         } catch(Exception e) {
-            OutWriter.writeError("Failed to update local data: " + e.getMessage());
+        	writer.writeError("Failed to update local data: " + e.getMessage());
         }
     }
 }

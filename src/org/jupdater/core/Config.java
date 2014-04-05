@@ -6,9 +6,9 @@ import java.io.File;
 
 public class Config {
     //config.conf
-    private com.typesafe.config.Config configFile = ConfigFactory.parseFile(new File("config.conf"));
+    private com.typesafe.config.Config configFile;
     //data
-    private String versionUrl = configFile.getString("connection.url.config");
+    private String versionUrl;
     private String versionData;
     private String versionPath;
     private String requiredFile;
@@ -22,6 +22,11 @@ public class Config {
     private int localOutputTextSize;
     //local data
     private String installedReleases = "";
+
+    public Config() {
+        this.configFile = ConfigFactory.parseFile(new File("config.conf"));
+        this.versionUrl = configFile.getString("connection.url.config");
+    }
 
     public String getVersionUrl() {
         return this.versionUrl;

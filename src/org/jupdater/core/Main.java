@@ -2,12 +2,13 @@ package org.jupdater.core;
 
 import java.io.File;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.jupdater.connection.FileLoader;
 import org.jupdater.connection.VersionLoader;
-import org.jupdater.core.injector.MainModule;
+import org.jupdater.core.injector.DefaultModule;
 import org.jupdater.data.DataManager;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 public class Main {
     /**
@@ -16,9 +17,8 @@ public class Main {
      */
     public static void main(String[] args) {
         //build singletons
-        Injector injector = Guice.createInjector(new MainModule());
+        Injector injector = Guice.createInjector(new DefaultModule());
         Config config = injector.getInstance(Config.class);
-
         //initialize host releases path
         VersionLoader versionLoader = injector.getInstance(VersionLoader.class);
         versionLoader.initializeVersion();

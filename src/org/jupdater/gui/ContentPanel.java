@@ -1,5 +1,6 @@
 package org.jupdater.gui;
 
+import com.google.inject.Inject;
 import org.jupdater.core.Config;
 
 import javax.swing.*;
@@ -9,29 +10,30 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class ContentPanel {
-    //the default panel
-    private DefaultPanel panel;
     //elements
     private JLabel outContainer;
     private JLabel closeButton;
+    //config
+    @Inject Config config;
+    //panel
+    @Inject DefaultPanel panel;
 
-    public ContentPanel(DefaultPanel panel) {
-        this.panel = panel;
+    public ContentPanel() {
         this.outContainer = new JLabel();
         this.closeButton = new JLabel();
     }
 
     public void initialize() {
         //output text container
-        String pos[] = Config.getInstance().getLocalOutputContainerPosition().split(",");
+        String pos[] = config.getLocalOutputContainerPosition().split(",");
 
         this.outContainer.setBounds(Integer.parseInt(pos[0]), Integer.parseInt(pos[1]), 300, 14);
-        this.outContainer.setFont(new Font("Microsoft JhengHei", Font.PLAIN, Config.getInstance().getLocalOutputTextSize()));
+        this.outContainer.setFont(new Font("Microsoft JhengHei", Font.PLAIN, config.getLocalOutputTextSize()));
         panel.add(outContainer);
 
         //button exit
-        pos = Config.getInstance().getLocalCloseIconPosition().split(",");
-        ImageIcon image = new ImageIcon(Config.getInstance().getLocalCloseIconUrl());
+        pos = config.getLocalCloseIconPosition().split(",");
+        ImageIcon image = new ImageIcon(config.getLocalCloseIconUrl());
         closeButton.setIcon(image);
         
         closeButton.setBounds(Integer.parseInt(pos[0]), Integer.parseInt(pos[1]), image.getIconWidth(), image.getIconHeight());
